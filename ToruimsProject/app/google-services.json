@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "33338962463",
+    "project_id": "toruimsproject",
+    "storage_bucket": "toruimsproject.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:33338962463:android:a1f9ded57044fd63b6db2a",
+        "android_client_info": {
+          "package_name": "com.optic.tourimsapp"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "33338962463-972n8a50ul160181km3c3jsn1mgsoiuf.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.optic.tourimsapp",
+            "certificate_hash": "5bce8eff12dc7d5583cd877049911d3430231218"
+          }
+        },
+        {
+          "client_id": "33338962463-26luk1gi1er9dta0jjb0gjlo2j62vhqg.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyALzEZrNZHwtOcajWKFnoH6OVpSwi_tyS8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "33338962463-26luk1gi1er9dta0jjb0gjlo2j62vhqg.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

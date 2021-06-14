@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">TourimsApp</string>
+    <string name="guia_turistico">Guia Turistico</string>
+    <string name="turista">Soy turista</string>
+    <string name="descripcion">Tourims App es un aplicativo que le permitira conectarse con un guia turista y empezar a conocer toda la ciudad</string>
+    <string name="yaTengoCuenta">Ya tengo cuenta</string>
+    <string name="registrarmeAhora">Registrarme Ahora</string>
+    <string name="seleccioneUnaOpcion">Seleccione una opción: </string>
 </resources>
