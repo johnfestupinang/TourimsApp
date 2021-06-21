@@ -7,15 +7,13 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.Turistas.MapTuristaActivity">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="MAPA DE CLIENTE - TURISTA"/>
+    <include layout="@layout/action_bar_toolbar"></include>
 
-    <Button
-        android:id="@+id/btnCerrarSesion"
+      <fragment
+        android:id="@+id/map"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cerrar Sesión"/>
+        android:layout_height="match_parent"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

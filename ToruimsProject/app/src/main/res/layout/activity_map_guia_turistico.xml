@@ -7,9 +7,24 @@
     android:fitsSystemWindows="true"
     tools:context=".activities.GuiaTuristicos.MapGuiaTuristicoActivity">
 
-    <TextView
+    <include layout="@layout/action_bar_toolbar"></include>
+
+
+    <fragment
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:name="com.google.android.gms.maps.SupportMapFragment"
+        />
+    <Button
+        android:id="@+id/btnConectarse"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="MAPA DE GUIA TURISTICO"/>
+        android:text="CONECTARSE"
+        android:layout_gravity="bottom"
+        android:layout_margin="30dp"
+        android:background="@drawable/rounder_button"
+        android:backgroundTint="@color/purple_01"
+        android:textColor="@color/Gris"/>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

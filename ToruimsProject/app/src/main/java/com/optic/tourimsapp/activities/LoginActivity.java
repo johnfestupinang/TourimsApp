@@ -98,7 +98,7 @@ public class LoginActivity extends AppCompatActivity {
                                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
                                 startActivity(intent);
                             }
-                            Toast.makeText(LoginActivity.this, "¡Bienvenido Usuario.!"+mAuth.getCurrentUser(),Toast.LENGTH_SHORT).show();
+                            Toast.makeText(LoginActivity.this, "¡Bienvenido al sistema!",Toast.LENGTH_SHORT).show();
                         }else{
                             Toast.makeText(LoginActivity.this, "¡Los datos son incorrectos, por favor verifique.!",Toast.LENGTH_SHORT).show();
                         }
