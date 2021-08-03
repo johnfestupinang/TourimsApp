@@ -22,6 +22,7 @@ public class TuristaProvider {
 
         Map<String, Object> mapaNuevoTurista = new HashMap<>();
         //Asignar los valores al mapa
+        mapaNuevoTurista.put("Id", nuevoTurista.getId());
         mapaNuevoTurista.put("nombreCompleto",nuevoTurista.getNombreCompleto());
         mapaNuevoTurista.put("correoElectronico",nuevoTurista.getCorreoElectronico());
 

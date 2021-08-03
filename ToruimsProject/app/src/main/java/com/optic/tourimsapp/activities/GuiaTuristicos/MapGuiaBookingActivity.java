@@ -18,9 +18,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
@@ -38,19 +35,12 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.ValueEventListener;
 import com.optic.tourimsapp.R;
-import com.optic.tourimsapp.activities.MainActivity;
-import com.optic.tourimsapp.activities.Turistas.MapTuristaActivity;
-import com.optic.tourimsapp.includes.MyToolbar;
 import com.optic.tourimsapp.providers.AuthProvider;
 import com.optic.tourimsapp.providers.GeofireProvider;
 import com.optic.tourimsapp.providers.TokenProvider;
 
-public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MapGuiaBookingActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private SupportMapFragment mMapFragment;
@@ -66,12 +56,7 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
 
     private Marker mMarker;//Marcador para saber la posicion
 
-    private Button btnConectarse;
-    private boolean estoyConectado = false;
-
     private LatLng mCurrentLatLng;
-
-    private ValueEventListener mListener;
 
 
     private LocationCallback mLocationCallback = new LocationCallback() {
@@ -109,60 +94,16 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_map_guia_turistico);
-
-        MyToolbar.show(MapGuiaTuristicoActivity.this, "Mapa Guia Turistico", false);
-
-        mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-        mMapFragment.getMapAsync(this);
+        setContentView(R.layout.activity_map_guia_booking);
 
         mAuthProvider = new AuthProvider();
-        mGeofireProvider = new GeofireProvider("guias_turisticos_activos");
+        mGeofireProvider = new GeofireProvider("guias-turisticos-trabajando");
         mTokenProvider = new TokenProvider();
 
-        mFusedLocation = LocationServices.getFusedLocationProviderClient(MapGuiaTuristicoActivity.this);
-
-        btnConectarse = findViewById(R.id.btnConectarse);
-
-        btnConectarse.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                if(estoyConectado){
-                    desconectado();
-                }else{
-                    startLocation();
-                }
-            }
-        });
-        generarToken();
-        estaGuiaTrabajando();
+        mFusedLocation = LocationServices.getFusedLocationProviderClient(this);
+        mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+        mMapFragment.getMapAsync(this);
     }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        if(mListener != null){
-            mGeofireProvider.estaGuiaTrabajando(mAuthProvider.getId()).removeEventListener(mListener);
-        }
-    }
-
-    private void estaGuiaTrabajando() {
-        mListener = mGeofireProvider.estaGuiaTrabajando(mAuthProvider.getId()).addValueEventListener(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
-                    desconectado();
-                }
-
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-
-            }
-        });
-    }
-
     private void actualizarLocalizacion(){
         if(mAuthProvider.existeSesion() && mCurrentLatLng != null){
             mGeofireProvider.guardarLocalizacion(mAuthProvider.getId(), mCurrentLatLng);
@@ -180,6 +121,8 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         mLocationRequest.setFastestInterval(1000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mLocationRequest.setSmallestDisplacement(5);
+
+        startLocation();
     }
 
     @Override
@@ -187,7 +130,7 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         if (requestCode == LOCATION_REQUEST_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                if (ContextCompat.checkSelfPermission(MapGuiaTuristicoActivity.this,
+                if (ContextCompat.checkSelfPermission(this,
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     if(gpsActived()){
                         mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
@@ -211,7 +154,7 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         super.onActivityResult(requestCode, resultCode, data);
         if (requestCode == SETTINGSREQUEST_CODE && gpsActived()) {
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-               return;
+                return;
             }
             mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
             if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
@@ -223,17 +166,17 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
     }
 
     private void showAlertDialogNOGPS(){//Metodo para mostrar cuadro de dialogo en caso de que no se tenga el GPS activado
-        AlertDialog.Builder builder = new AlertDialog.Builder(MapGuiaTuristicoActivity.this);
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         builder.setMessage("Por favor active la ubicacion para continuar")
-        .setPositiveButton("Configuraciones", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS),
-                        SETTINGSREQUEST_CODE
+                .setPositiveButton("Configuraciones", new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int which) {
+                        startActivityForResult(new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS),
+                                SETTINGSREQUEST_CODE
                         );
-            }
-        })
+                    }
+                })
                 .create()
                 .show();
 
@@ -252,15 +195,13 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
     private void desconectado(){
 
         if(mFusedLocation != null){
-            btnConectarse.setText("Conectarse");
-            estoyConectado = false;
             mFusedLocation.removeLocationUpdates(mLocationCallback);
             if(mAuthProvider.existeSesion()){
                 mGeofireProvider.eliminarLocalizacion(mAuthProvider.getId());
             }
 
         }else{
-            Toast.makeText(MapGuiaTuristicoActivity.this,"No se puede desconectar", Toast.LENGTH_LONG);
+            Toast.makeText(this,"No se puede desconectar", Toast.LENGTH_LONG);
         }
 
 
@@ -268,11 +209,9 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
 
     private void startLocation(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if(ContextCompat.checkSelfPermission(MapGuiaTuristicoActivity.this,
+            if(ContextCompat.checkSelfPermission(this,
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                 if(gpsActived()){
-                    btnConectarse.setText("Desconectarse");
-                    estoyConectado = true;
                     mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     }
@@ -297,53 +236,27 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
     }
 
     private void checkLocationPermissions(){
-        if(ContextCompat.checkSelfPermission(MapGuiaTuristicoActivity.this,
+        if(ContextCompat.checkSelfPermission(this,
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED){
-            if(ActivityCompat.shouldShowRequestPermissionRationale(MapGuiaTuristicoActivity.this, Manifest.permission.ACCESS_FINE_LOCATION)){
-                new AlertDialog.Builder(MapGuiaTuristicoActivity.this)
+            if(ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.ACCESS_FINE_LOCATION)){
+                new AlertDialog.Builder(this)
                         .setTitle("Tourims App: Permisos de Localizacion")
                         .setMessage("Esta aplicacion necesita los permisos de localizacion para poder utilizarse")
                         .setPositiveButton("Ok", new DialogInterface.OnClickListener() {
                             @Override
                             public void onClick(DialogInterface dialog, int which) {
-                                ActivityCompat.requestPermissions(MapGuiaTuristicoActivity.this
+                                ActivityCompat.requestPermissions(MapGuiaBookingActivity.this
                                         ,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},
                                         LOCATION_REQUEST_CODE);
                             }
                         })
-                .create()
-                .show();
+                        .create()
+                        .show();
 
             }else{
-                ActivityCompat.requestPermissions(MapGuiaTuristicoActivity.this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
+                ActivityCompat.requestPermissions(MapGuiaBookingActivity.this,new String[] {Manifest.permission.ACCESS_FINE_LOCATION},LOCATION_REQUEST_CODE);
             }
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.guiaturistico_menu,menu);
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
-        if(item.getItemId() == R.id.accion_cerrarSesion){
-            cerrarSesion();
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    void cerrarSesion(){
-        desconectado();
-        mAuthProvider.cerrarSesion();
-        Intent intent = new Intent(MapGuiaTuristicoActivity.this, MainActivity.class);
-        startActivity(intent);
-        finish();
-    }
-
-    //TOKEN PARA GENERAR LA NOTIFICACION
-    void generarToken(){
-        mTokenProvider.crear(mAuthProvider.getId());
-    }
 }

@@ -12,20 +12,25 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import com.firebase.geofire.GeoLocation;
 import com.firebase.geofire.GeoQuery;
 import com.firebase.geofire.GeoQueryEventListener;
+import com.google.android.gms.common.api.Status;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -40,15 +45,24 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.libraries.places.api.Places;
+import com.google.android.libraries.places.api.model.Place;
+import com.google.android.libraries.places.api.model.RectangularBounds;
+import com.google.android.libraries.places.api.net.PlacesClient;
+import com.google.android.libraries.places.widget.AutocompleteSupportFragment;
+import com.google.android.libraries.places.widget.listener.PlaceSelectionListener;
 import com.google.firebase.database.DatabaseError;
+import com.google.maps.android.SphericalUtil;
 import com.optic.tourimsapp.R;
 import com.optic.tourimsapp.activities.GuiaTuristicos.MapGuiaTuristicoActivity;
 import com.optic.tourimsapp.activities.MainActivity;
 import com.optic.tourimsapp.includes.MyToolbar;
 import com.optic.tourimsapp.providers.AuthProvider;
 import com.optic.tourimsapp.providers.GeofireProvider;
+import com.optic.tourimsapp.providers.TokenProvider;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyCallback {
@@ -60,6 +74,7 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
     private FusedLocationProviderClient mFusedLocation;
 
     private GeofireProvider mGeofireProvider;
+    private TokenProvider mTokenProvider;
 
     private final static int LOCATION_REQUEST_CODE = 1;
     private final static int SETTINGSREQUEST_CODE = 2;
@@ -71,24 +86,37 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
 
     private boolean mIsFirtsTime = true;
 
+    private AutocompleteSupportFragment mAutoComplete;
+    private AutocompleteSupportFragment mAutoCompleteDestination;
+    private PlacesClient mPlaces;
+
+    private String lugarOrigen;//mOrigin
+    private LatLng latLngOrigen;//mOriginLatLng
+
+    private String lugarDestino;//mDestination
+    private LatLng latLngDestino;//mdestinationLatLng
+
+    private GoogleMap.OnCameraIdleListener mCameralistener;
+
+    private Button btnSolicitarGuia ;
 
     private LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             for (Location location : locationResult.getLocations()) {
                 if (getApplicationContext() != null) {
-                    if(mMarker != null){
+                    /*if(mMarker != null){
                         mMarker.remove();
-                    }
+                    }*/
 
-                    mCurrenLatLng = new LatLng(location.getLatitude(),location.getLongitude());
+                    mCurrenLatLng = new LatLng(location.getLatitude(), location.getLongitude());
 
-                    mMarker = mMap.addMarker(new MarkerOptions()
+                    /*mMarker = mMap.addMarker(new MarkerOptions()
                             .position(new LatLng(location.getLatitude(),location.getLongitude())
                             )
                             .title("Tu posicion")
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_marcadorturista))
-                    );
+                    );*/
                     //Obtener la localizacion del usuario en tiempo real
                     mMap.moveCamera(CameraUpdateFactory.newCameraPosition(
                             new CameraPosition.Builder()
@@ -98,9 +126,10 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
 
                     ));
 
-                    if(mIsFirtsTime){
+                    if (mIsFirtsTime) {
                         mIsFirtsTime = false;
                         obtenerGuiasActivos();
+                        limitarBusqueda();
                     }
                 }
             }
@@ -121,21 +150,138 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
         mMapFragment.getMapAsync(this);
 
         mAuthProvider = new AuthProvider();
-        mGeofireProvider = new GeofireProvider();
+        mGeofireProvider = new GeofireProvider("guias_turisticos_activos");
+        mTokenProvider = new TokenProvider();
 
         mFusedLocation = LocationServices.getFusedLocationProviderClient(MapTuristaActivity.this);
+
+        btnSolicitarGuia = findViewById(R.id.BtnSolicitarGuia);
+
+
+        if (!Places.isInitialized()) {
+            Places.initialize(getApplicationContext(), getResources().getString(R.string.google_maps_key));
+        }
+
+        mPlaces = Places.createClient(MapTuristaActivity.this);
+
+        //Origen
+        instanciarAutoCompliteOrigen();
+
+        //Destino
+        instanciarAutoComplitDestino();
+
+        //Camera listener
+        onCamaraMove();
+
+
+        btnSolicitarGuia.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                solicitarGuia();
+            }
+        });
+
+        generarToken();
+
     }
 
-    private void obtenerGuiasActivos(){
-    mGeofireProvider.obtenerGuiasActivos(mCurrenLatLng).addGeoQueryEventListener(new GeoQueryEventListener(){
+    private void limitarBusqueda(){
+        LatLng northSide = SphericalUtil.computeOffset(mCurrenLatLng, 5000,0);
+        LatLng southSide = SphericalUtil.computeOffset(mCurrenLatLng, 5000,180);
+        mAutoComplete.setCountry("COL");
+        mAutoComplete.setLocationBias(RectangularBounds.newInstance(southSide,northSide));
+        mAutoCompleteDestination.setCountry("COL");
+        mAutoCompleteDestination.setLocationBias(RectangularBounds.newInstance(southSide,northSide));
+    }
+
+    private void onCamaraMove(){
+        mCameralistener = new GoogleMap.OnCameraIdleListener() {
+            @Override
+            public void onCameraIdle() {
+                try {
+                    Geocoder geoCoder = new Geocoder(MapTuristaActivity.this);
+                    latLngOrigen = mMap.getCameraPosition().target;
+                    List<Address> listaDirecciones = geoCoder.getFromLocation(latLngOrigen.latitude, latLngOrigen.longitude, 1);
+                    String ciudad = listaDirecciones.get(0).getLocality();
+                    String pais = listaDirecciones.get(0).getCountryName();
+                    String direccion = listaDirecciones.get(0).getAddressLine(0);
+                    lugarOrigen = direccion+" "+ciudad;
+                    mAutoComplete.setText(direccion+" "+ciudad);
+                }catch (Exception e){
+                    Log.e("Error: ","Mensaje Error: "+e.getMessage());
+                }
+            }
+        };
+    }
+
+    private void solicitarGuia(){
+        if(latLngOrigen != null && latLngDestino != null){
+            Intent intent = new Intent(MapTuristaActivity.this, DetailRequestActivity.class);
+            intent.putExtra("origin_lat",latLngOrigen.latitude);
+            intent.putExtra("origin_lng",latLngOrigen.longitude);
+            intent.putExtra("destination_lat",latLngDestino.latitude);
+            intent.putExtra("destination_lng",latLngDestino.longitude);
+            intent.putExtra("origen", lugarOrigen);
+            intent.putExtra("destino", lugarDestino);
+            startActivity(intent);
+
+        }else{
+            Toast.makeText(this, "Seleccione el lugar de origen y destino", Toast.LENGTH_LONG).show();
+        }
+    }
+
+    private void instanciarAutoCompliteOrigen(){
+        //Origen
+        mAutoComplete = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.placeAutocompleteOrigin);
+        mAutoComplete.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
+        mAutoComplete.setHint("Origen");
+        mAutoComplete.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+                lugarOrigen = place.getName();
+                latLngOrigen = place.getLatLng();
+                Log.d("PLACE: ", "Name: " + lugarOrigen);
+                Log.d("PLACE: ", "LATLNG: " + latLngOrigen.latitude + " - " + latLngOrigen.longitude);
+            }
+
+            @Override
+            public void onError(@NonNull Status status) {
+
+            }
+        });
+    }
+
+    private void instanciarAutoComplitDestino(){
+        //Destino
+        mAutoCompleteDestination = (AutocompleteSupportFragment) getSupportFragmentManager().findFragmentById(R.id.placeAutocompleteDestination);
+        mAutoCompleteDestination.setPlaceFields(Arrays.asList(Place.Field.ID, Place.Field.LAT_LNG, Place.Field.NAME));
+        mAutoCompleteDestination.setHint("Destino");
+        mAutoCompleteDestination.setOnPlaceSelectedListener(new PlaceSelectionListener() {
+            @Override
+            public void onPlaceSelected(@NonNull Place place) {
+                lugarDestino = place.getName();
+                latLngDestino = place.getLatLng();
+                Log.d("PLACE: ", "Name: " + lugarDestino);
+                Log.d("PLACE: ", "LATLNG: " + latLngDestino.latitude + " - " + latLngDestino.longitude);
+            }
+
+            @Override
+            public void onError(@NonNull Status status) {
+
+            }
+        });
+    }
+
+    private void obtenerGuiasActivos() {
+        mGeofireProvider.obtenerGuiasActivos(mCurrenLatLng,10).addGeoQueryEventListener(new GeoQueryEventListener() {
 
             //añadir los marcadores de los guias turisticos que se van conectando
             @Override
             public void onKeyEntered(String key, GeoLocation location) {
                 //AÑADIR LOS MARCADORES DE LOS GUIAS QUE SE CONECTAN
-                for (Marker marker: mGuias){
-                    if(marker.getTag() != null){
-                        if(marker.getTag().equals(key)){
+                for (Marker marker : mGuias) {
+                    if (marker.getTag() != null) {
+                        if (marker.getTag().equals(key)) {
                             return;
                         }
                     }
@@ -154,9 +300,9 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
             @Override
             public void onKeyExited(String key) {
                 //ELIMINAR DE LA LISTA DE MARCADORES LOS GUIAS QUE SE DESCONECTAN
-                for (Marker marker: mGuias){
-                    if(marker.getTag() != null){
-                        if(marker.getTag().equals(key)){
+                for (Marker marker : mGuias) {
+                    if (marker.getTag() != null) {
+                        if (marker.getTag().equals(key)) {
                             marker.remove();
                             mGuias.remove(marker);
                             return;
@@ -169,10 +315,10 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
             @Override
             public void onKeyMoved(String key, GeoLocation location) {
                 //ACTUALIZAR POSICIONDE CADA GUIA TURISTICO
-                for (Marker marker: mGuias){
-                    if(marker.getTag() != null){
-                        if(marker.getTag().equals(key)){
-                            marker.setPosition(new LatLng(location.latitude,location.longitude));
+                for (Marker marker : mGuias) {
+                    if (marker.getTag() != null) {
+                        if (marker.getTag().equals(key)) {
+                            marker.setPosition(new LatLng(location.latitude, location.longitude));
                         }
                     }
                 }
@@ -195,6 +341,7 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        mMap.setOnCameraIdleListener(mCameralistener);
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);
@@ -215,6 +362,7 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
                         Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                     if(gpsActived()){
                         mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                        mMap.setMyLocationEnabled(true);
                     }else{
                         showAlertDialogNOGPS();
                     }
@@ -235,7 +383,8 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
                 return;
             }
             mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-        }else{
+            mMap.setMyLocationEnabled(true);
+        }else if (requestCode == SETTINGSREQUEST_CODE && !gpsActived()){
             showAlertDialogNOGPS();
         }
     }
@@ -273,6 +422,7 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
                     Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                 if(gpsActived()){
                     mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                    mMap.setMyLocationEnabled(true);
                 }else{
                     showAlertDialogNOGPS();
                 }
@@ -283,6 +433,7 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
         }else{
             if(gpsActived()){
                 mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
+                mMap.setMyLocationEnabled(true);
             }else{
                 showAlertDialogNOGPS();
             }
@@ -332,5 +483,10 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
         Intent intent = new Intent(MapTuristaActivity.this, MainActivity.class);
         startActivity(intent);
         finish();
+    }
+
+    //TOKEN PARA GENERAR LA NOTIFICACION
+    void generarToken(){
+        mTokenProvider.crear(mAuthProvider.getId());
     }
 }

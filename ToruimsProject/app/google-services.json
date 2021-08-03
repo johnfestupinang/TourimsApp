@@ -1,6 +1,7 @@
 {
   "project_info": {
     "project_number": "33338962463",
+    "firebase_url": "https://toruimsproject-default-rtdb.firebaseio.com",
     "project_id": "toruimsproject",
     "storage_bucket": "toruimsproject.appspot.com"
   },

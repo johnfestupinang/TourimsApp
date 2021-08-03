@@ -12,7 +12,27 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TourimsApp">
-        <activity android:name=".activities.GuiaTuristicos.MapGuiaTuristicoActivity"></activity>
+        <activity android:name=".activities.GuiaTuristicos.MapGuiaBookingActivity"></activity>
+        <activity android:name=".activities.Turistas.MapTuristaBookingActivity" />
+
+        <receiver
+            android:name=".receivers.AcceptReceiver"
+            android:enabled="true" />
+        <receiver
+            android:name=".receivers.CancelReceiver"
+            android:enabled="true" />
+
+        <service android:name=".service.MyFirebaseMessagingClient">
+            <intent-filter>
+                <action android:name="com.google.firebase.MESSAGING_EVENT" />
+            </intent-filter>
+        </service>
+
+        <activity android:name=".activities.Turistas.RequestGuiaTuristicoActivity" />
+        <activity
+            android:name=".activities.Turistas.DetailRequestActivity"
+            android:parentActivityName=".activities.Turistas.MapTuristaActivity" />
+        <activity android:name=".activities.GuiaTuristicos.MapGuiaTuristicoActivity" />
         <activity android:name=".activities.Turistas.MapTuristaActivity" />
         <activity android:name=".activities.GuiaTuristicos.RegisterGuiaTuristicoActivity" />
         <activity
@@ -31,8 +51,10 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <meta-data android:name="com.google.android.geo.API_KEY" android:value="@string/google_maps_key"/>
-    </application
-        >
+
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="@string/google_maps_key" />
+    </application>
 
 </manifest>

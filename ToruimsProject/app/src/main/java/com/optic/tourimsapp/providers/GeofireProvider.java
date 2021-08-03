@@ -12,8 +12,9 @@ public class GeofireProvider {
     private DatabaseReference mDatabase;
     private GeoFire mGeofire;
 
-    public GeofireProvider(){
-        mDatabase = FirebaseDatabase.getInstance().getReference().child("guias_turisticos_activos");
+    public GeofireProvider(String reference){
+        mDatabase = FirebaseDatabase.getInstance().getReference().child(reference);
+        //mDatabase = FirebaseDatabase.getInstance().getReference().child("guias_turisticos_activos");
         mGeofire = new GeoFire(mDatabase);
     }
 
@@ -25,9 +26,14 @@ public class GeofireProvider {
         mGeofire.removeLocation(idGuiaTuristico);
     }
 
-    public GeoQuery obtenerGuiasActivos(LatLng latLng){
-        GeoQuery geoQuery = mGeofire.queryAtLocation(new GeoLocation(latLng.latitude,latLng.longitude),5);//radio de 5Km
+    public GeoQuery obtenerGuiasActivos(LatLng latLng,double radius){
+        GeoQuery geoQuery = mGeofire.queryAtLocation(new GeoLocation(latLng.latitude,latLng.longitude),radius);//radio de 5Km
         geoQuery.removeAllListeners();
         return geoQuery;
+    }
+
+    //Usar la instancia para hacer referencia solo a ese objeto
+    public DatabaseReference estaGuiaTrabajando(String idGuia){
+        return FirebaseDatabase.getInstance().getReference().child("guias-turisticos-trabajando").child(idGuia);
     }
 }
