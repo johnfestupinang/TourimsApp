@@ -229,7 +229,7 @@ public class RequestGuiaTuristicoActivity extends AppCompatActivity {
                             +"\n.Recoger en: "+Origen+"\n.Destino: "+Destino+".");
                     mapaMensaje.put("idTurista",mAuthProvider.getId());
 
-                    FCMBody body = new FCMBody(tokenUsuario,"high",mapaMensaje);
+                    FCMBody body = new FCMBody(tokenUsuario,"high","4500s",mapaMensaje);
                     mNotificationProvider.sendNotification(body).enqueue(new Callback<FCMResponse>() {
                         @Override
                         public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {

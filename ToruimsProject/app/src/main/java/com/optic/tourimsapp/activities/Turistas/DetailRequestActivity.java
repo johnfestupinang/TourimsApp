@@ -126,6 +126,7 @@ public class DetailRequestActivity extends AppCompatActivity implements OnMapRea
         finish();//Cerrar esta actividad cuando pase a la otra actividad
     }
 
+    //DIBUJAR LA RUTA
     private void drawRoute(){
         mGoogleApiProvider.getDirections(mOriginLatLng,mDestinationLatLng).enqueue(new Callback<String>() {
             @Override
@@ -180,7 +181,7 @@ public class DetailRequestActivity extends AppCompatActivity implements OnMapRea
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
         mMap.addMarker(new MarkerOptions().position(mOriginLatLng).title("Origen").icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_mappin)));
-        mMap.addMarker(new MarkerOptions().position(mDestinationLatLng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_mappin_gris)));
+        mMap.addMarker(new MarkerOptions().position(mDestinationLatLng).title("Destino").icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_mappin)));
 
         mMap.animateCamera(CameraUpdateFactory.newCameraPosition(
                 new CameraPosition.Builder()

@@ -28,8 +28,18 @@ public class TuristaBookingProvider {
 
     }
 
+    public Task<Void> updateidHistoryBooking(String idTuristaBooking){
+        String idPush = mDatabase.push().getKey(); //Generar id unico en la BD
+        Map<String, Object> mapa = new HashMap<>();
+        mapa.put("idHistoryBooking",idPush);
+        return mDatabase.child(idTuristaBooking).updateChildren(mapa);
+    }
+
     public DatabaseReference obtenerEstado(String idTuristaBooking){
         return mDatabase.child(idTuristaBooking).child("estado");
     }
 
+    public DatabaseReference obtenerTuristaBooking(String idTuristaBooking) {
+        return mDatabase.child(idTuristaBooking);
+    }
 }

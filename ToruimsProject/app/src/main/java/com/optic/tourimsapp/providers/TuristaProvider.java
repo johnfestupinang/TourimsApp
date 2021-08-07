@@ -30,5 +30,7 @@ public class TuristaProvider {
         return mDatabase.child(nuevoTurista.getId()).setValue(mapaNuevoTurista);
     }
 
-
+    public DatabaseReference obtenerCliente(String idTurista) {
+        return mDatabase.child(idTurista);
+    }
 }

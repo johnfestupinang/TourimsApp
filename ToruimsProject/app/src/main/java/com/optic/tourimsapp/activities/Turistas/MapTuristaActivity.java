@@ -335,7 +335,6 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
             }
         });
     }
-
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -352,6 +351,7 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
         startLocation();
 
     }
+
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {

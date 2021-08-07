@@ -18,6 +18,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Looper;
 import android.provider.Settings;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -79,14 +80,14 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         public void onLocationResult(LocationResult locationResult) {
             for (Location location : locationResult.getLocations()) {
                 if (getApplicationContext() != null) {
-                    mCurrentLatLng = new LatLng(location.getLatitude(),location.getLongitude());
-                    if(mMarker != null){
+                    mCurrentLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    if (mMarker != null) {
                         mMarker.remove();
                     }
 
 
                     mMarker = mMap.addMarker(new MarkerOptions()
-                            .position(new LatLng(location.getLatitude(),location.getLongitude())
+                            .position(new LatLng(location.getLatitude(), location.getLongitude())
                             )
                             .title("Tu posicion")
                             .icon(BitmapDescriptorFactory.fromResource(R.drawable.icono_marcadorguiaturistico))
@@ -127,9 +128,9 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         btnConectarse.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if(estoyConectado){
+                if (estoyConectado) {
                     desconectado();
-                }else{
+                } else {
                     startLocation();
                 }
             }
@@ -141,7 +142,7 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if(mListener != null){
+        if (mListener != null) {
             mGeofireProvider.estaGuiaTrabajando(mAuthProvider.getId()).removeEventListener(mListener);
         }
     }
@@ -150,7 +151,7 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         mListener = mGeofireProvider.estaGuiaTrabajando(mAuthProvider.getId()).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if(snapshot.exists()){
+                if (snapshot.exists()) {
                     desconectado();
                 }
 
@@ -163,8 +164,8 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         });
     }
 
-    private void actualizarLocalizacion(){
-        if(mAuthProvider.existeSesion() && mCurrentLatLng != null){
+    private void actualizarLocalizacion() {
+        if (mAuthProvider.existeSesion() && mCurrentLatLng != null) {
             mGeofireProvider.guardarLocalizacion(mAuthProvider.getId(), mCurrentLatLng);
         }
     }
@@ -174,6 +175,9 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         mMap = googleMap;
         mMap.setMapType(GoogleMap.MAP_TYPE_NORMAL);
         mMap.getUiSettings().setZoomControlsEnabled(true);
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+        }
+        mMap.setMyLocationEnabled(false);
 
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(1000);

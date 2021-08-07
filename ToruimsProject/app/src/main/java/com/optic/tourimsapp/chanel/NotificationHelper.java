@@ -17,7 +17,7 @@ import com.optic.tourimsapp.R;
 
 public class NotificationHelper extends ContextWrapper {
 
-    private static final String CHANNEL_ID = "com.optic.toirimsapp";
+    private static final String CHANNEL_ID = "com.optic.tourimsapp";
     private static final String CHANNEL_NAME = "TourimsApp";
 
     private NotificationManager manager;

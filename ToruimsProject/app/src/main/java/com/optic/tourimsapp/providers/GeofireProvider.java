@@ -34,6 +34,10 @@ public class GeofireProvider {
 
     //Usar la instancia para hacer referencia solo a ese objeto
     public DatabaseReference estaGuiaTrabajando(String idGuia){
-        return FirebaseDatabase.getInstance().getReference().child("guias-turisticos-trabajando").child(idGuia);
+        return FirebaseDatabase.getInstance().getReference().child("guias_turisticos_trabajando").child(idGuia);
+    }
+
+    public DatabaseReference obtenerLocalizacionGuia(String idGuia){
+        return mDatabase.child(idGuia).child("l");
     }
 }

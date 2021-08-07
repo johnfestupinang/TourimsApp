@@ -18,4 +18,8 @@ public class GuiaTuristicoProvider {
     public Task<Void> crearGuiaTuristico(GuiaTuristico nuevoGuiaTuristico){
         return mDatabase.child(nuevoGuiaTuristico.getId()).setValue(nuevoGuiaTuristico);
     }
+
+    public DatabaseReference obtenerGuia(String idGuia) {
+        return mDatabase.child(idGuia);
+    }
 }

@@ -1,25 +1,29 @@
 package com.optic.tourimsapp.modelos;
 
-public class TuristaBooking {
+public class HistorialBooking {
 
-    String idHistoryBooking;
-     String idTurista;
-     String idGuiaTuristico;
-     String destino;
-     String origen;
-     String tiempo;
-     String distancia;
-     String estado;
-     double origenLat;
-     double origenLng;
-     double destinoLat;
-     double destinoLng;
+    String idHistorialBooking;
+    String idTurista;
+    String idGuiaTuristico;
+    String destino;
+    String origen;
+    String tiempo;
+    String distancia;
+    String estado;
+    double origenLat;
+    double origenLng;
+    double destinoLat;
+    double destinoLng;
+    double calificacionTurista;
+    double calificacionGuia;
+    long timestamp;
 
-     public TuristaBooking(){
+    public HistorialBooking(){
 
-     }
+    }
 
-    public TuristaBooking(String idTurista, String idGuiaTuristico, String destino, String origen, String tiempo, String distancia, String estado, double origenLat, double origenLng, double destinoLat, double destinoLng) {
+    public HistorialBooking(String idHistorialBooking, String idTurista, String idGuiaTuristico, String destino, String origen, String tiempo, String distancia, String estado, double origenLat, double origenLng, double destinoLat, double destinoLng) {
+        this.idHistorialBooking = idHistorialBooking;
         this.idTurista = idTurista;
         this.idGuiaTuristico = idGuiaTuristico;
         this.destino = destino;
@@ -33,27 +37,12 @@ public class TuristaBooking {
         this.destinoLng = destinoLng;
     }
 
-    public TuristaBooking(String idHistoryBooking, String idTurista, String idGuiaTuristico, String destino, String origen, String tiempo, String distancia, String estado, double origenLat, double origenLng, double destinoLat, double destinoLng) {
-        this.idHistoryBooking = idHistoryBooking;
-        this.idTurista = idTurista;
-        this.idGuiaTuristico = idGuiaTuristico;
-        this.destino = destino;
-        this.origen = origen;
-        this.tiempo = tiempo;
-        this.distancia = distancia;
-        this.estado = estado;
-        this.origenLat = origenLat;
-        this.origenLng = origenLng;
-        this.destinoLat = destinoLat;
-        this.destinoLng = destinoLng;
+    public long getTimestamp() {
+        return timestamp;
     }
 
-    public String getIdHistoryBooking() {
-        return idHistoryBooking;
-    }
-
-    public void setIdHistoryBooking(String idHistoryBooking) {
-        this.idHistoryBooking = idHistoryBooking;
+    public void setTimestamp(long timestamp) {
+        this.timestamp = timestamp;
     }
 
     public String getIdTurista() {
@@ -70,6 +59,30 @@ public class TuristaBooking {
 
     public void setIdGuiaTuristico(String idGuiaTuristico) {
         this.idGuiaTuristico = idGuiaTuristico;
+    }
+
+    public String getIdHistorialBooking() {
+        return idHistorialBooking;
+    }
+
+    public void setIdHistorialBooking(String idHistorialBooking) {
+        this.idHistorialBooking = idHistorialBooking;
+    }
+
+    public double getCalificacionTurista() {
+        return calificacionTurista;
+    }
+
+    public void setCalificacionTurista(double calificacionTurista) {
+        this.calificacionTurista = calificacionTurista;
+    }
+
+    public double getCalificacionGuia() {
+        return calificacionGuia;
+    }
+
+    public void setCalificacionGuia(double getCalificacionGuia) {
+        this.calificacionGuia = getCalificacionGuia;
     }
 
     public String getDestino() {
@@ -143,4 +156,5 @@ public class TuristaBooking {
     public void setDestinoLng(double destinoLng) {
         this.destinoLng = destinoLng;
     }
+
 }

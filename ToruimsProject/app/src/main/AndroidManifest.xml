@@ -12,7 +12,9 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TourimsApp">
-        <activity android:name=".activities.GuiaTuristicos.MapGuiaBookingActivity"></activity>
+        <activity android:name=".activities.Turistas.CalificacionGuiaActivity"></activity>
+        <activity android:name=".activities.GuiaTuristicos.CalificacionTuristaActivity" />
+        <activity android:name=".activities.GuiaTuristicos.MapGuiaBookingActivity" />
         <activity android:name=".activities.Turistas.MapTuristaBookingActivity" />
 
         <receiver
