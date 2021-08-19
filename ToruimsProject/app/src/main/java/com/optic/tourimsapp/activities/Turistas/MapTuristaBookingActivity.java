@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
@@ -39,6 +40,7 @@ import com.optic.tourimsapp.providers.GoogleApiProvider;
 import com.optic.tourimsapp.providers.GuiaTuristicoProvider;
 import com.optic.tourimsapp.providers.TokenProvider;
 import com.optic.tourimsapp.providers.TuristaBookingProvider;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -76,6 +78,7 @@ public class MapTuristaBookingActivity extends AppCompatActivity implements OnMa
     private TextView txtOrigenTuristaBooking;
     private TextView txtDestinoTuristaBooking;
     private TextView txtViewEstadoSolicitud;
+    private ImageView imgViewTuristaBooking;
 
     private GoogleApiProvider mGoogleApiProvider;
     private List<LatLng> mPolyLineList;
@@ -112,6 +115,7 @@ public class MapTuristaBookingActivity extends AppCompatActivity implements OnMa
         txtOrigenTuristaBooking = findViewById(R.id.txtViewOrigenGuiaBooking);
         txtDestinoTuristaBooking = findViewById(R.id.txtViewDestinoGuiaBooking);
         txtViewEstadoSolicitud = findViewById(R.id.txtViewEstadoSolicitud);
+        imgViewTuristaBooking = findViewById(R.id.imgViewTuristaBooking);
 
         obtenerEstado();
         obtnerTuristaBooking();
@@ -210,6 +214,11 @@ public class MapTuristaBookingActivity extends AppCompatActivity implements OnMa
                 if(snapshot.exists()){
                     String nombre = snapshot.child("nombreCompleto").getValue().toString();
                     String email = snapshot.child("correoElectronico").getValue().toString();
+                    String imagen = "";
+                    if(snapshot.hasChild("Imagen")){
+                        imagen = snapshot.child("Imagen").getValue().toString();
+                        Picasso.with(MapTuristaBookingActivity.this).load(imagen).into(imgViewTuristaBooking);
+                    }
 
                     txtTuristaBooking.setText(nombre);
                     txtEmailTuristaBooking.setText(email);

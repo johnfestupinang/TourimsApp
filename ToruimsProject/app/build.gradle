@@ -54,6 +54,14 @@ dependencies {
     implementation 'com.airbnb.android:lottie:3.4.2'
     implementation 'com.google.firebase:firebase-messaging:20.1.0'//22.0.0
     //implementation 'com.google.android.gms:play-services-maps:16.1.0'
+    implementation 'com.firebaseui:firebase-ui-database:6.2.0'
+
+    implementation 'com.google.firebase:firebase-storage:19.1.1'
+    //implementation 'id.zelory:compressor:3.0.1'
+    implementation 'id.zelory:compressor:2.1.1'
+    //implementation 'ide.zelory:compressor:2.1.0' //para comprimir el tamaño de las imagenes
+
+    implementation 'com.squareup.picasso:picasso:2.5.2'//permite obtener las imagenes por medio de las URL y poderlas mostrar en el ImageView
 
 }
 apply plugin: 'com.android.application'

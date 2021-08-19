@@ -5,6 +5,7 @@ public class Turista {
     String id;
     String nombreCompleto;
     String correoElectronico;
+    String imagen;
 
     public String getId() {
         return id;
@@ -15,6 +16,19 @@ public class Turista {
         this.nombreCompleto = nombreCompleto;
         this.correoElectronico = correoElectronico;
     }
+
+    public Turista (){
+
+    }
+
+
+    public Turista(String id, String nombreCompleto, String correoElectronico, String imagen) {
+        this.id = id;
+        this.nombreCompleto = nombreCompleto;
+        this.correoElectronico = correoElectronico;
+        this.imagen = imagen;
+    }
+
 
     public void setId(String id) {
         this.id = id;
@@ -34,5 +48,13 @@ public class Turista {
 
     public void setCorreoElectronico(String correoElectronico) {
         this.correoElectronico = correoElectronico;
+    }
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 }

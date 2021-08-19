@@ -42,4 +42,8 @@ public class TuristaBookingProvider {
     public DatabaseReference obtenerTuristaBooking(String idTuristaBooking) {
         return mDatabase.child(idTuristaBooking);
     }
+
+    public Task<Void> eliminar(String idTuristaBooking){
+        return mDatabase.child(idTuristaBooking).removeValue();
+    }
 }

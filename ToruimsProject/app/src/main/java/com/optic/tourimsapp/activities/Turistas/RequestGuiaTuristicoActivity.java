@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -109,8 +110,70 @@ public class RequestGuiaTuristicoActivity extends AppCompatActivity {
         mOriginLatLong = new LatLng(mExtraOrigenLat,mExtraOrigenLong);
         mDestinationLatLong = new LatLng(mExtraDestinoLat,mExtraDestinoLong);
 
+        btnCancelarSolicitud.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                cancelarSolicitud();
+            }
+        });
+
         this.obtenerGuiasTuristicosCercanos();
 
+    }
+
+    private void cancelarSolicitud() {
+        mTuristaBookingProvider.eliminar(mAuthProvider.getId()).addOnSuccessListener(new OnSuccessListener<Void>() {
+            @Override
+            public void onSuccess(Void unused) {//CUANDO SE HAYA ELIMINADO EL TURISTABOOKING (SOLICITUD) DE LA BD
+                sendNotificationCancel();
+            }
+        });
+    }
+
+
+    public void sendNotificationCancel(){
+        mTokenProvider.getToken(mIdGuiaTuristico).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {//El snapshot devuelve todo el elemnte en este caso el del nodo token
+                if(snapshot.exists()){
+                    String tokenUsuario = snapshot.child("token").getValue().toString();//Retorna el token asociado al idUsuario
+                    Map<String, String> mapaMensaje = new HashMap<>();
+                    mapaMensaje.put("title","SOLICITUD CANCELADA");
+                    mapaMensaje.put("body","El turista cancelo la solicitud");
+                    FCMBody body = new FCMBody(tokenUsuario,"high","4500s",mapaMensaje);
+                    mNotificationProvider.sendNotification(body).enqueue(new Callback<FCMResponse>() {
+                        @Override
+                        public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
+                            if(response.body() != null){
+                                if(response.body().getSuccess() == 1){
+                                    Toast.makeText(RequestGuiaTuristicoActivity.this, "La solucitud se cancelo correctamente.", Toast.LENGTH_LONG).show();
+                                    Intent intent = new Intent(RequestGuiaTuristicoActivity.this, MapTuristaActivity.class);
+                                    startActivity(intent);
+                                    finish();
+
+                                }else{
+                                    Toast.makeText(RequestGuiaTuristicoActivity.this, "Ocurrio un error al enviar la notificacion.", Toast.LENGTH_LONG).show();
+                                }
+                            }else{
+                                Toast.makeText(RequestGuiaTuristicoActivity.this, "Ocurrio un error al enviar la notificacion.", Toast.LENGTH_LONG).show();
+                            }
+                        }
+
+                        @Override
+                        public void onFailure(Call<FCMResponse> call, Throwable t) {
+                            Log.e("Error","Error Notificaciones: "+t.getMessage());
+                        }
+                    });
+                }else{
+                    Toast.makeText(RequestGuiaTuristicoActivity.this, "No se pudo enviar la notificacion, porque el guia turistico no tiene un token de sesion.", Toast.LENGTH_LONG).show();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+
+            }
+        });
     }
 
     //getClosestDriver
@@ -225,9 +288,12 @@ public class RequestGuiaTuristicoActivity extends AppCompatActivity {
                     String tokenUsuario = snapshot.child("token").getValue().toString();//Retorna el token asociado al idUsuario
                     Map<String, String> mapaMensaje = new HashMap<>();
                     mapaMensaje.put("title","SOLICITUD DE GUIA TURISTICO A "+tiempo+" DE SU POSICION");
-                    mapaMensaje.put("body","Hay un turista cercano solicitando sus servicios a una distancia de: "+distancia
-                            +"\n.Recoger en: "+Origen+"\n.Destino: "+Destino+".");
+                    mapaMensaje.put("body","Hay un turista cercano solicitando sus servicios a una distancia de: "+distancia+"."+"\nRecoger en: "+Origen+"."+"\n.Destino: "+Destino+".");
                     mapaMensaje.put("idTurista",mAuthProvider.getId());
+                    mapaMensaje.put("origen",Origen);
+                    mapaMensaje.put("destino",Destino);
+                    mapaMensaje.put("tiempo",tiempo);
+                    mapaMensaje.put("distancia",distancia);
 
                     FCMBody body = new FCMBody(tokenUsuario,"high","4500s",mapaMensaje);
                     mNotificationProvider.sendNotification(body).enqueue(new Callback<FCMResponse>() {
@@ -235,7 +301,7 @@ public class RequestGuiaTuristicoActivity extends AppCompatActivity {
                         public void onResponse(Call<FCMResponse> call, Response<FCMResponse> response) {
                             if(response.body() != null){
                                 if(response.body().getSuccess() == 1){
-                                    Toast.makeText(RequestGuiaTuristicoActivity.this, "Su notificacion se ha enviado correctamente", Toast.LENGTH_LONG).show();
+                                    //Toast.makeText(RequestGuiaTuristicoActivity.this, "Su notificacion se ha enviado correctamente", Toast.LENGTH_LONG).show();
 
                                     TuristaBooking turistaBooking = new TuristaBooking(
                                             mAuthProvider.getId(),

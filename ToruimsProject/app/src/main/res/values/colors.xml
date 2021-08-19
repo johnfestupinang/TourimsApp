@@ -8,4 +8,6 @@
     <color name="white">#FFFFFF</color>
     <color name="Gris">#F3F3F3</color>
     <color name="purple_01">#333258</color>
+    <color name="colorAzulClaro">#03A9F4</color>
+    <color name="colorRojo">#F40303</color>
 </resources>

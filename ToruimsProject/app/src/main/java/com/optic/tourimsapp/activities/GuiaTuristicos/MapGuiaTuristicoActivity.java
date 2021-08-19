@@ -45,6 +45,7 @@ import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.ValueEventListener;
 import com.optic.tourimsapp.R;
 import com.optic.tourimsapp.activities.MainActivity;
+import com.optic.tourimsapp.activities.Turistas.HistoryBookingTuristaActivity;
 import com.optic.tourimsapp.activities.Turistas.MapTuristaActivity;
 import com.optic.tourimsapp.includes.MyToolbar;
 import com.optic.tourimsapp.providers.AuthProvider;
@@ -73,6 +74,8 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
     private LatLng mCurrentLatLng;
 
     private ValueEventListener mListener;
+
+    private String idGuiaturistico;
 
 
     private LocationCallback mLocationCallback = new LocationCallback() {
@@ -112,7 +115,7 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_map_guia_turistico);
 
-        MyToolbar.show(MapGuiaTuristicoActivity.this, "Mapa Guia Turistico", false);
+        MyToolbar.show(this, "Mapa Guia Turistico", false);
 
         mMapFragment = (SupportMapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
         mMapFragment.getMapAsync(this);
@@ -121,9 +124,11 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
         mGeofireProvider = new GeofireProvider("guias_turisticos_activos");
         mTokenProvider = new TokenProvider();
 
-        mFusedLocation = LocationServices.getFusedLocationProviderClient(MapGuiaTuristicoActivity.this);
+        mFusedLocation = LocationServices.getFusedLocationProviderClient(this);
 
         btnConectarse = findViewById(R.id.btnConectarse);
+
+        idGuiaturistico = mAuthProvider.getId();
 
         btnConectarse.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -143,12 +148,16 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
     protected void onDestroy() {
         super.onDestroy();
         if (mListener != null) {
-            mGeofireProvider.estaGuiaTrabajando(mAuthProvider.getId()).removeEventListener(mListener);
+            //Log.e("IDCONDUCTOR",idGuiaturistico);
+            mGeofireProvider.estaGuiaTrabajando(idGuiaturistico).removeEventListener(mListener);
+            //mGeofireProvider.estaGuiaTrabajando(mAuthProvider.getId()).removeEventListener(mListener);
         }
     }
 
     private void estaGuiaTrabajando() {
-        mListener = mGeofireProvider.estaGuiaTrabajando(mAuthProvider.getId()).addValueEventListener(new ValueEventListener() {
+        Log.e("estaGuiaTrabajando",idGuiaturistico);
+       //mListener = mGeofireProvider.estaGuiaTrabajando(mAuthProvider.getId()).addValueEventListener(new ValueEventListener() {
+        mListener = mGeofireProvider.estaGuiaTrabajando(idGuiaturistico).addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (snapshot.exists()) {
@@ -218,9 +227,10 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
                return;
             }
             mFusedLocation.requestLocationUpdates(mLocationRequest, mLocationCallback, Looper.myLooper());
-            if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            /*if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
             }
             mMap.setMyLocationEnabled(true); //Habilitar el marcador por defecto
+             */
         }else{
             showAlertDialogNOGPS();
         }
@@ -272,8 +282,7 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
 
     private void startLocation(){
         if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.M){
-            if(ContextCompat.checkSelfPermission(MapGuiaTuristicoActivity.this,
-                    Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
+            if(ContextCompat.checkSelfPermission(MapGuiaTuristicoActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED){
                 if(gpsActived()){
                     btnConectarse.setText("Desconectarse");
                     estoyConectado = true;
@@ -281,6 +290,8 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
                     if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
                     }
                     mMap.setMyLocationEnabled(true); //Habilitar el marcador por defecto
+                    idGuiaturistico = mAuthProvider.getId();
+                    Log.e("IDCONDUCTOR", mAuthProvider.getId());
                 }else{
                     showAlertDialogNOGPS();
                 }
@@ -334,6 +345,14 @@ public class MapGuiaTuristicoActivity extends AppCompatActivity implements OnMap
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if(item.getItemId() == R.id.accion_cerrarSesion){
             cerrarSesion();
+        }
+        if(item.getItemId() == R.id.accion_actualizarPerfilGuia){
+            Intent intent = new Intent(MapGuiaTuristicoActivity.this,ActualizarPerfilGuiaActivity.class);
+            startActivity(intent);
+        }
+        if(item.getItemId() == R.id.accion_historial){
+            Intent intent = new Intent(MapGuiaTuristicoActivity.this, HistoryBookingGuiaActivity.class);
+            startActivity(intent);
         }
         return super.onOptionsItemSelected(item);
     }

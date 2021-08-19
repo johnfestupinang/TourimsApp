@@ -466,7 +466,7 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.guiaturistico_menu,menu);
+        getMenuInflater().inflate(R.menu.turista_menu,menu);
         return super.onCreateOptionsMenu(menu);
     }
 
@@ -475,6 +475,17 @@ public class MapTuristaActivity extends AppCompatActivity implements OnMapReadyC
         if(item.getItemId() == R.id.accion_cerrarSesion){
             cerrarSesion();
         }
+        if(item.getItemId() == R.id.accion_actualizarPerfil){
+            Intent intent = new Intent(MapTuristaActivity.this,ActualizarPerfilActivity.class);
+            startActivity(intent);
+        }
+        if(item.getItemId() == R.id.accion_historial){
+            Intent intent = new Intent(MapTuristaActivity.this,HistoryBookingTuristaActivity.class);
+            startActivity(intent);
+        }
+
+
+
         return super.onOptionsItemSelected(item);
     }
 

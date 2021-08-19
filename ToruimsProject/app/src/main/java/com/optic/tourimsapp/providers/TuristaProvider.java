@@ -30,6 +30,18 @@ public class TuristaProvider {
         return mDatabase.child(nuevoTurista.getId()).setValue(mapaNuevoTurista);
     }
 
+    public Task<Void> actualizarTurista(Turista nuevoTurista){
+
+        Map<String, Object> turistaActualizado = new HashMap<>();
+        //Asignar los valores al mapa
+        turistaActualizado.put("Id", nuevoTurista.getId());
+        turistaActualizado.put("nombreCompleto",nuevoTurista.getNombreCompleto());
+        turistaActualizado.put("Imagen",nuevoTurista.getImagen());
+
+        //Enviar el mapa con los campos seteados a Firebase
+        return mDatabase.child(nuevoTurista.getId()).updateChildren(turistaActualizado);
+    }
+
     public DatabaseReference obtenerCliente(String idTurista) {
         return mDatabase.child(idTurista);
     }

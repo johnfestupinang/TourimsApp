@@ -22,6 +22,7 @@ import android.provider.Settings;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -60,6 +61,7 @@ import com.optic.tourimsapp.providers.NotificationProvider;
 import com.optic.tourimsapp.providers.TokenProvider;
 import com.optic.tourimsapp.providers.TuristaBookingProvider;
 import com.optic.tourimsapp.providers.TuristaProvider;
+import com.squareup.picasso.Picasso;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -97,6 +99,7 @@ public class MapGuiaBookingActivity extends AppCompatActivity implements OnMapRe
     private TextView txtEmailTuristaBooking;
     private TextView txtOrigenTuristaBooking;
     private TextView txtDestinoTuristaBooking;
+    private ImageView imgViewTuristaBooking ;
 
     private String mExtraTuristaId;
 
@@ -170,6 +173,7 @@ public class MapGuiaBookingActivity extends AppCompatActivity implements OnMapRe
         txtEmailTuristaBooking = findViewById(R.id.txtViewEmailTuristaBooking);
         txtOrigenTuristaBooking = findViewById(R.id.txtViewOrigenTuristaBooking);
         txtDestinoTuristaBooking = findViewById(R.id.txtViewDestinoTuristaBooking);
+        imgViewTuristaBooking = findViewById(R.id.imgViewTuristaBooking);
 
         btnIniciarBooking = findViewById(R.id.btnIniciarBooking);
         //btnIniciarBooking.setEnabled(false);
@@ -329,6 +333,11 @@ public class MapGuiaBookingActivity extends AppCompatActivity implements OnMapRe
                 if(snapshot.exists()){
                     String email = snapshot.child("correoElectronico").getValue().toString();
                     String nombre = snapshot.child("nombreCompleto").getValue().toString();
+                    String imagen = "";
+                    if(snapshot.hasChild("Imagen")){
+                        imagen = snapshot.child("Imagen").getValue().toString();
+                        Picasso.with(MapGuiaBookingActivity.this).load(imagen).into(imgViewTuristaBooking);
+                    }
                     txtTuristaBooking.setText(nombre);
                     txtEmailTuristaBooking.setText(email);
                 }

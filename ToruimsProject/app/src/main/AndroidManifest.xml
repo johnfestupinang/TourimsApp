@@ -4,6 +4,8 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
 
     <application
         android:allowBackup="true"
@@ -12,7 +14,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TourimsApp">
-        <activity android:name=".activities.Turistas.CalificacionGuiaActivity"></activity>
+        <activity android:name=".activities.GuiaTuristicos.HistoryBookingGuiaActivity" android:parentActivityName=".activities.GuiaTuristicos.MapGuiaTuristicoActivity"></activity>
+        <activity
+            android:name=".activities.Turistas.HistoryBookingTuristaActivity"
+            android:parentActivityName=".activities.Turistas.MapTuristaActivity" />
+        <activity
+            android:name=".activities.GuiaTuristicos.ActualizarPerfilGuiaActivity"
+            android:parentActivityName=".activities.Turistas.MapTuristaActivity" />
+        <activity
+            android:name=".activities.Turistas.ActualizarPerfilActivity"
+            android:parentActivityName=".activities.Turistas.MapTuristaActivity" />
+        <activity android:name=".activities.GuiaTuristicos.NotificationBookingActivity" />
+        <activity android:name=".activities.Turistas.CalificacionGuiaActivity" />
         <activity android:name=".activities.GuiaTuristicos.CalificacionTuristaActivity" />
         <activity android:name=".activities.GuiaTuristicos.MapGuiaBookingActivity" />
         <activity android:name=".activities.Turistas.MapTuristaBookingActivity" />

@@ -5,6 +5,7 @@ public class GuiaTuristico {
     String id;
     String nombreCompleto;
     String correoElectronico;
+    String imagen;
 
     public String getId() {
         return id;
@@ -14,6 +15,16 @@ public class GuiaTuristico {
         this.id = id;
         this.nombreCompleto = nombreCompleto;
         this.correoElectronico = correoElectronico;
+    }
+
+    public GuiaTuristico(){}
+
+    public String getImagen() {
+        return imagen;
+    }
+
+    public void setImagen(String imagen) {
+        this.imagen = imagen;
     }
 
     public void setId(String id) {
