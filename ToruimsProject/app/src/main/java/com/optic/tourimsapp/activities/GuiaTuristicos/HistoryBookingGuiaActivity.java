@@ -42,7 +42,7 @@ public class HistoryBookingGuiaActivity extends AppCompatActivity {
         super.onStart();
         mAuthProvider = new AuthProvider();
         Query query = FirebaseDatabase.getInstance().getReference()
-                .child("TuristaBooking")//HistoryBooking
+                .child("HistorialBooking")//HistoryBooking
                 .orderByChild("idGuiaTuristico")
                 .equalTo(mAuthProvider.getId());
         FirebaseRecyclerOptions<HistorialBooking> options = new FirebaseRecyclerOptions.Builder<HistorialBooking>()

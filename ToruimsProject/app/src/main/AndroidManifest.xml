@@ -14,7 +14,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.TourimsApp">
-        <activity android:name=".activities.GuiaTuristicos.HistoryBookingGuiaActivity" android:parentActivityName=".activities.GuiaTuristicos.MapGuiaTuristicoActivity"></activity>
+        <activity android:name=".activities.GuiaTuristicos.HistoryBookingDetailGuiaActivity"></activity>
+        <activity android:name=".activities.Turistas.HistoryBookingDetailTuristaActivity" />
+        <activity
+            android:name=".activities.GuiaTuristicos.HistoryBookingGuiaActivity"
+            android:parentActivityName=".activities.GuiaTuristicos.MapGuiaTuristicoActivity" />
         <activity
             android:name=".activities.Turistas.HistoryBookingTuristaActivity"
             android:parentActivityName=".activities.Turistas.MapTuristaActivity" />
